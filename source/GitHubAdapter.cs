@@ -5,6 +5,7 @@ using Octokit;
 using System.Linq;
 using System.Configuration;
 using System.Text.RegularExpressions;
+using Octokit.Internal;
 
 namespace GitHubSearch
 {
@@ -21,13 +22,14 @@ namespace GitHubSearch
 
         private static readonly Uri accountUri = new Uri("https://github.com/" + gitHubTargetName);
 
-        private readonly GitHubClient _client = new GitHubClient(new ProductHeaderValue("GitHubSearch"), accountUri);
+        private IGitHubClient _client;
 
         private readonly IFileCache _cache = new FileCache();
 
         public bool InitAccessToken(string accessToken)
         {
-            _client.Credentials = new Credentials(accessToken);
+
+            _client = new GitHubClient(new ProductHeaderValue("GitHubSearch"), new InMemoryCredentialStore(new Credentials(accessToken)), accountUri);
 
             User user;
             try
