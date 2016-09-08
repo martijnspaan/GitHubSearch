@@ -28,6 +28,14 @@ namespace GitHubSearch
             {
                 _configurationSearcher.SearchFor(args[0]);
             }
+            catch (AggregateException aggregateException)
+            {
+                Console.WriteLine();
+                foreach (var innerException in aggregateException.InnerExceptions)
+                {
+                    Console.WriteLine(innerException.Message);
+                }
+            }
             catch (Exception ex)
             {
                 Console.WriteLine();

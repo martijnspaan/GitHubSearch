@@ -42,7 +42,7 @@ namespace GitHubSearch
             return user != null;
         }
 
-        public IEnumerable<Repository> FindRepositories()
+        public string[] FindRepositories()
         {
             IReadOnlyList<Repository> repositories;
             try
@@ -60,21 +60,24 @@ namespace GitHubSearch
 
             string[] filters = GetRepositoryFilters();
 
-            return
-                repositories.Where(
-                    x => filters.Any(filter => Regex.IsMatch(x.Name, filter, RegexOptions.IgnoreCase)));
+            return repositories
+                .Where(x => filters.Any(filter => Regex.IsMatch(x.Name, filter, RegexOptions.IgnoreCase)))
+                .Select(x => x.FullName)
+                .ToArray();
         }
 
         private string[] GetRepositoryFilters()
         {
             var repositoryFilters = ConfigurationManager.AppSettings["RepositoryFilters"];
-            return repositoryFilters.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries).Select(x => $"^{x}$").ToArray();
+            return repositoryFilters.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => $"^{x}$")
+                .ToArray();
         }
-        
-        public IEnumerable<ConfigFileHit> DownloadConfigurationFiles(IEnumerable<Repository> repos, string searchToken)
+
+        public IEnumerable<ConfigFileHit> DownloadConfigurationFiles(string[] repos, string searchToken)
         {
             SearchCodeResult result = FindConfigurationFiles(repos, searchToken);
-            
+
             // Because of yield, cannot return the total count
             CurrentSearchItemsCount = result.TotalCount;
 
@@ -85,29 +88,35 @@ namespace GitHubSearch
                     RepositoryName = configFileInfo.Repository.Name,
                     Path = configFileInfo.Path,
                     HtmlUrl = configFileInfo.HtmlUrl,
-                    Content = _cache.GetCachedFileContent(configFileInfo, DownloadFileContent)
-                };           
+                    Content = _cache.GetCachedFileContent(configFileInfo.Repository.Id, configFileInfo.Path, configFileInfo.Sha, DownloadFileContent)
+                };
             }
         }
 
-        private SearchCodeResult FindConfigurationFiles(IEnumerable<Repository> repos, string searchToken)
+        private SearchCodeResult FindConfigurationFiles(string[] repos, string searchToken)
         {
             var filename = ConfigurationManager.AppSettings["FilenameFilter"];
             var request = new SearchCodeRequest(searchToken);
             foreach (var repo in repos)
             {
-                request.Repos.Add(repo.FullName);
+                request.Repos.Add(repo);
             }
             request.FileName = filename;
 
-            
-            var result =  _client.Search.SearchCode(request).Result;
-            return result;
+            try
+            {
+                return _client.Search.SearchCode(request).Result;
+            }
+            catch (Exception)
+            {
+                throw new Exception("Search resulted in a server error. Probably caused by a too large result set. Please refine your search and try again.");
+            }
+
         }
 
-        private string DownloadFileContent(SearchCode configFileInfo)
+        private string DownloadFileContent(int repositoryId, string filePath)
         {
-            return _client.Repository.Content.GetAllContents(configFileInfo.Repository.Id, configFileInfo.Path).Result.First().Content;
+            return _client.Repository.Content.GetAllContents(repositoryId, filePath).Result.First().Content;
         }
     }
 
@@ -136,11 +145,11 @@ namespace GitHubSearch
         /// <summary>
         /// Find a list of repositories that comply to the repositories filter.
         /// </summary>
-        IEnumerable<Repository> FindRepositories();
+        string[] FindRepositories();
 
         /// <summary>
         /// Lazily yields a list of downloaded configuration files.
         /// </summary>
-        IEnumerable<ConfigFileHit> DownloadConfigurationFiles(IEnumerable<Repository> repos, string searchToken);
+        IEnumerable<ConfigFileHit> DownloadConfigurationFiles(string[] repos, string searchToken);
     }
 }

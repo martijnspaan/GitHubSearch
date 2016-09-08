@@ -1,5 +1,4 @@
 ﻿using System;
-using Octokit;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -33,10 +32,10 @@ namespace GitHubSearch
             Console.WriteLine();
             Console.WriteLine($" Searching GitHub for repositories on {_gitHubAdapter.GitHubTargetName}");
 
-            IEnumerable<Repository> repos = _gitHubAdapter.FindRepositories();
+            string[] repos = _gitHubAdapter.FindRepositories();
 
             Console.WriteLine();
-            Console.WriteLine($" Searching through {repos.Count()} repositories for '{searchToken}'");
+            Console.WriteLine($" Searching through {repos.Length} repositories for '{searchToken}'");
 
             return _gitHubAdapter.DownloadConfigurationFiles(repos, searchToken);
         }
