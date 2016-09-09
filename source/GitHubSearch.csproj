@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigFileResult.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationSearcher.cs" />
     <Compile Include="FileCache.cs" />
     <Compile Include="GitHubAdapter.cs" />

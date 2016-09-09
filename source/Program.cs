@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Configuration;
 using System.Reflection;
 
 namespace GitHubSearch
 {
     internal class Program
     {
-        private static readonly IGitHubAdapter _gitHubAdapter = new GitHubAdapter(new GitHubClientFactory());
+        private static readonly IConfiguration _configuration = new Configuration();
+        private static readonly IGitHubAdapter _gitHubAdapter = new GitHubAdapter(new GitHubClientFactory(), _configuration);
 
-        private static readonly ConfigurationSearcher _configurationSearcher = new ConfigurationSearcher(_gitHubAdapter);
+        private static readonly ConfigurationSearcher _configurationSearcher = new ConfigurationSearcher(_gitHubAdapter, _configuration);
 
         static void Main(string[] args)
         {
@@ -54,13 +54,13 @@ namespace GitHubSearch
 
         internal static void InitGithubAccessToken()
         {
-            var accessToken = ConfigurationManager.AppSettings["GithubAccessToken"];
+            var accessToken = _configuration.GithubAccessToken;
 
             while (string.IsNullOrEmpty(accessToken) || !_gitHubAdapter.InitAccessToken(accessToken))
             {
                 accessToken = AskForAccessToken();
 
-                StoreAccessToken(accessToken);
+                _configuration.StoreAccessToken(accessToken);
             }
         }
 
@@ -75,14 +75,6 @@ namespace GitHubSearch
             Console.WriteLine();
             Console.Write(" GitHub accesstoken: ");
             return Console.ReadLine();
-        }
-
-        internal static void StoreAccessToken(string accessToken)
-        {
-            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["GithubAccessToken"].Value = accessToken;
-            config.Save(ConfigurationSaveMode.Modified);
-            ConfigurationManager.RefreshSection("appSettings");
         }
     }
 }

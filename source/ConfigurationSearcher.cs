@@ -4,18 +4,20 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Configuration;
 using System.Drawing;
 
 namespace GitHubSearch
 {
     internal class ConfigurationSearcher : IConfigurationSearcher
     {
-        private IGitHubAdapter _gitHubAdapter;
+        private readonly IGitHubAdapter _gitHubAdapter;
 
-        public ConfigurationSearcher(IGitHubAdapter gitHubAdapter)
+        private readonly IConfiguration _configuration;
+
+        public ConfigurationSearcher(IGitHubAdapter gitHubAdapter, IConfiguration configuration)
         {
             _gitHubAdapter = gitHubAdapter;
+            _configuration = configuration;
         }
 
         public void SearchFor(string searchToken)
@@ -30,7 +32,7 @@ namespace GitHubSearch
         private IEnumerable<ConfigFileHit> FindAllConfigurationFiles(string searchToken)
         {
             Console.WriteLine();
-            Console.WriteLine($" Searching GitHub for repositories on {_gitHubAdapter.GitHubTargetName}");
+            Console.WriteLine($" Searching GitHub for repositories on {_configuration.GithubTargetName}");
 
             string[] repos = _gitHubAdapter.FindRepositories();
 
@@ -110,9 +112,9 @@ namespace GitHubSearch
             LogHitLines(hit, searchToken);
         }
 
-        private static void LogHitFilename(ConfigFileHit hit)
+        private void LogHitFilename(ConfigFileHit hit)
         {
-            switch (ConfigurationManager.AppSettings["OutputMode"])
+            switch (_configuration.OutputMode)
             {
                 case "HtmlUrl":
                     Console.WriteLine($" {hit.FoundLineNumbers.Count()} hits in {hit.HtmlUrl}");
@@ -125,7 +127,7 @@ namespace GitHubSearch
 
         private void LogHitLines(ConfigFileHit hit, string searchToken)
         {
-            var showLinesCount = int.Parse(ConfigurationManager.AppSettings["SurroundingLines"]);
+            var showLinesCount = _configuration.SurroundingLines;
 
             var lines = hit.Content.Split('\n');
             foreach (var line in hit.FoundLineNumbers)

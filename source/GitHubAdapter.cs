@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 using Octokit;
 using System.Linq;
-using System.Configuration;
 using System.Text.RegularExpressions;
 
 namespace GitHubSearch
@@ -14,20 +13,18 @@ namespace GitHubSearch
     internal class GitHubAdapter : IGitHubAdapter
     {
         private readonly IGitHubClientFactory _clientFactory;
+        private readonly IConfiguration _configuration;
 
         public int CurrentSearchItemsCount { get; private set; }
-
-        public string GitHubTargetName => gitHubTargetName;
-
-        private static readonly string gitHubTargetName = ConfigurationManager.AppSettings["GithubTargetName"];
 
         private IGitHubClient _client;
 
         private readonly IFileCache _cache = new FileCache();
 
-        public GitHubAdapter(IGitHubClientFactory clientFactory)
+        public GitHubAdapter(IGitHubClientFactory clientFactory, IConfiguration configuration)
         {
             _clientFactory = clientFactory;
+            _configuration = configuration;
         }
 
         public bool InitAccessToken(string accessToken)
@@ -52,7 +49,7 @@ namespace GitHubSearch
             IReadOnlyList<Repository> repositories;
             try
             {
-                var user = _client.User.Get(gitHubTargetName).Result;
+                var user = _client.User.Get(_configuration.GithubTargetName).Result;
 
                 repositories = user.Type == AccountType.Organization
                     ? _client.Repository.GetAllForOrg(user.Login).Result
@@ -60,22 +57,12 @@ namespace GitHubSearch
             }
             catch
             {
-                throw new Exception($" Specified target '{GitHubTargetName}' is neither a valid organization or user.");
+                throw new Exception($" Specified target '{_configuration.GithubTargetName}' is neither a valid organization or user.");
             }
 
-            string[] filters = GetRepositoryFilters();
-
             return repositories
-                .Where(x => filters.Any(filter => Regex.IsMatch(x.Name, filter, RegexOptions.IgnoreCase)))
+                .Where(x => _configuration.RepositoryFilters.Any(filter => Regex.IsMatch(x.Name, filter, RegexOptions.IgnoreCase)))
                 .Select(x => x.FullName)
-                .ToArray();
-        }
-
-        private string[] GetRepositoryFilters()
-        {
-            var repositoryFilters = ConfigurationManager.AppSettings["RepositoryFilters"];
-            return repositoryFilters.Split(new[] {'|'}, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => $"^{x}$")
                 .ToArray();
         }
 
@@ -100,13 +87,12 @@ namespace GitHubSearch
 
         private SearchCodeResult FindConfigurationFiles(string[] repos, string searchToken)
         {
-            var filename = ConfigurationManager.AppSettings["FilenameFilter"];
             var request = new SearchCodeRequest(searchToken);
             foreach (var repo in repos)
             {
                 request.Repos.Add(repo);
             }
-            request.FileName = filename;
+            request.FileName = _configuration.FilenameFilter;
 
             try
             {
@@ -131,11 +117,6 @@ namespace GitHubSearch
     /// <remarks>Used Octokit for consulting the GitHub Api.</remarks>
     public interface IGitHubAdapter
     {
-        /// <summary>
-        /// The name of the account that is being searched.
-        /// </summary>
-        string GitHubTargetName { get; }
-
         /// <summary>
         /// The current amount of items found by the search.
         /// </summary>
