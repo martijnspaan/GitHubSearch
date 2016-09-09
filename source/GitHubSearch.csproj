@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Bootstrapper.cs" />
     <Compile Include="ConfigFileResult.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationSearcher.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="ProgressIndicator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Common\TinyIoC.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

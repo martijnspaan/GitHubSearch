@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using Octokit;
+﻿using Octokit;
 using Octokit.Internal;
 
 namespace GitHubSearch

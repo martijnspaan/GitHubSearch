@@ -10,3 +10,4 @@ Thanks to all the awesome libraries making this searcher possible:
 * [Octokit](https://github.com/octokit/octokit.net)
 * [Colorful.Console](https://github.com/tomakita/Colorful.Console)
 * [NewtonSoft](https://github.com/JamesNK/Newtonsoft.Json)
+* [TinyIoC](https://github.com/grumpydev/TinyIoC)

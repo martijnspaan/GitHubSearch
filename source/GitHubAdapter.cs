@@ -14,17 +14,18 @@ namespace GitHubSearch
     {
         private readonly IGitHubClientFactory _clientFactory;
         private readonly IConfiguration _configuration;
+        private readonly IFileCache _cache;
 
         public int CurrentSearchItemsCount { get; private set; }
 
         private IGitHubClient _client;
 
-        private readonly IFileCache _cache = new FileCache();
 
-        public GitHubAdapter(IGitHubClientFactory clientFactory, IConfiguration configuration)
+        public GitHubAdapter(IGitHubClientFactory clientFactory, IConfiguration configuration, IFileCache cache)
         {
             _clientFactory = clientFactory;
             _configuration = configuration;
+            _cache = cache;
         }
 
         public bool InitAccessToken(string accessToken)

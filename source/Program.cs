@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Reflection;
+using GitHubSearch.Common;
 
 namespace GitHubSearch
 {
     internal class Program
     {
-        private static readonly IConfiguration _configuration = new Configuration();
-        private static readonly IGitHubAdapter _gitHubAdapter = new GitHubAdapter(new GitHubClientFactory(), _configuration);
-
-        private static readonly ConfigurationSearcher _configurationSearcher = new ConfigurationSearcher(_gitHubAdapter, _configuration);
-
         static void Main(string[] args)
         {
             Console.WriteLine();
@@ -22,11 +18,12 @@ namespace GitHubSearch
                 Environment.Exit(1);
             }
 
-            InitGithubAccessToken();
+            var container = Bootstrapper.Start();
 
             try
             {
-                _configurationSearcher.SearchFor(args[0]);
+                var searcher = container.Resolve<IConfigurationSearcher>();
+                searcher.SearchFor(args[0]);
             }
             catch (AggregateException aggregateException)
             {
@@ -50,31 +47,6 @@ namespace GitHubSearch
                 var version = Assembly.GetCallingAssembly().GetName().Version;
                 return $"{version.Major}.{version.Minor}.{version.Revision}";
             }
-        }
-
-        internal static void InitGithubAccessToken()
-        {
-            var accessToken = _configuration.GithubAccessToken;
-
-            while (string.IsNullOrEmpty(accessToken) || !_gitHubAdapter.InitAccessToken(accessToken))
-            {
-                accessToken = AskForAccessToken();
-
-                _configuration.StoreAccessToken(accessToken);
-            }
-        }
-
-        internal static string AskForAccessToken()
-        {
-            Console.WriteLine();
-            Console.WriteLine(" Cannot find a valid GitHub access token.");
-            Console.WriteLine();
-            Console.WriteLine(" Please provide an access token to your own account in order to iterate the private repositories.");
-            Console.WriteLine(" This token will have minimal credentials and only used to access GitHub to perform the search query.");
-            Console.WriteLine(" Create a token by going to https://github.com/settings/tokens and create a token with \"Full control of private repositories\"");
-            Console.WriteLine();
-            Console.Write(" GitHub accesstoken: ");
-            return Console.ReadLine();
         }
     }
 }
