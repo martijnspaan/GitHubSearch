@@ -4,7 +4,7 @@ Born from the limitation that the online [GitHub search](https://help.github.com
 
 ## License 
 
-Licensed under the [MIT License](https://github.com/martijnspaan/GitHubSearch/blob/master/LICENSE.txt)
+Licensed under the [MIT License](https://github.com/martijnspaan/GitHubSearch/blob/master/LICENSE)
 
 Thanks to all the awesome libraries making this searcher possible:
 * [Octokit](https://github.com/octokit/octokit.net)
