@@ -5,7 +5,6 @@ using Octokit;
 using System.Linq;
 using System.Configuration;
 using System.Text.RegularExpressions;
-using Octokit.Internal;
 
 namespace GitHubSearch
 {
@@ -14,22 +13,26 @@ namespace GitHubSearch
     /// </summary>
     internal class GitHubAdapter : IGitHubAdapter
     {
+        private readonly IGitHubClientFactory _clientFactory;
+
         public int CurrentSearchItemsCount { get; private set; }
 
         public string GitHubTargetName => gitHubTargetName;
 
         private static readonly string gitHubTargetName = ConfigurationManager.AppSettings["GithubTargetName"];
 
-        private static readonly Uri accountUri = new Uri("https://github.com/" + gitHubTargetName);
-
         private IGitHubClient _client;
 
         private readonly IFileCache _cache = new FileCache();
 
+        public GitHubAdapter(IGitHubClientFactory clientFactory)
+        {
+            _clientFactory = clientFactory;
+        }
+
         public bool InitAccessToken(string accessToken)
         {
-
-            _client = new GitHubClient(new ProductHeaderValue("GitHubSearch"), new InMemoryCredentialStore(new Credentials(accessToken)), accountUri);
+            _client = _clientFactory.Create(accessToken);
 
             User user;
             try

@@ -6,7 +6,7 @@ namespace GitHubSearch
 {
     internal class Program
     {
-        private static readonly IGitHubAdapter _gitHubAdapter = new GitHubAdapter();
+        private static readonly IGitHubAdapter _gitHubAdapter = new GitHubAdapter(new GitHubClientFactory());
 
         private static readonly ConfigurationSearcher _configurationSearcher = new ConfigurationSearcher(_gitHubAdapter);
 
@@ -47,7 +47,7 @@ namespace GitHubSearch
         {
             get
             {
-                var version = Assembly.GetEntryAssembly().GetName().Version;
+                var version = Assembly.GetCallingAssembly().GetName().Version;
                 return $"{version.Major}.{version.Minor}.{version.Revision}";
             }
         }
