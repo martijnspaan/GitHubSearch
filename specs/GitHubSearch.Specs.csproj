@@ -86,6 +86,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="FileCacheSpecs.cs" />
+    <Compile Include="GitHubAdapterSpecs.cs" />
     <Compile Include="GitHubClientFactorySpecs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
