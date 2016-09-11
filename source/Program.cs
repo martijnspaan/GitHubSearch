@@ -18,10 +18,10 @@ namespace GitHubSearch
                 Environment.Exit(1);
             }
 
-            var container = Bootstrapper.Start();
-
             try
             {
+                var container = Bootstrapper.Start();
+
                 var searcher = container.Resolve<IConfigurationSearcher>();
                 searcher.SearchFor(args[0]);
             }
