@@ -32,17 +32,7 @@ namespace GitHubSearch
         {
             _client = _clientFactory.Create(accessToken);
 
-            User user;
-            try
-            {
-                user = _client.User.Current().Result;
-            }
-            catch
-            {
-                return false;
-            }
-
-            return user != null;
+            return _client != null;
         }
 
         public string[] FindRepositories()

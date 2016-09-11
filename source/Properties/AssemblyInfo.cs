@@ -36,3 +36,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.1.0.0")]
 
 [assembly: InternalsVisibleTo("GitHubSearch.Specs")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

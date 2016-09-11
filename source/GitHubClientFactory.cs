@@ -9,9 +9,32 @@ namespace GitHubSearch
 
         public IGitHubClient Create(string accessToken)
         {
-            var credentialsStore = new InMemoryCredentialStore(new Credentials(accessToken));
+            IGitHubClient gitHubClient;
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                var credentialsStore = new InMemoryCredentialStore(new Credentials(accessToken));
+                gitHubClient = new GitHubClient(ProductHeader, credentialsStore);
+            }
+            else
+            {
+                gitHubClient = new GitHubClient(ProductHeader);
+            }
 
-            return new GitHubClient(ProductHeader, credentialsStore);
+            return ReturnClientWhenValid(gitHubClient);
+        }
+
+        private static IGitHubClient ReturnClientWhenValid(IGitHubClient gitHubClient)
+        {
+            try
+            {
+                gitHubClient.Repository.Get("martijnspaan", "GitHubSearch").Wait();
+            }
+            catch
+            {
+                return null;
+            }
+
+            return gitHubClient;
         }
     }
 
