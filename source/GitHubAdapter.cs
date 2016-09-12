@@ -78,7 +78,7 @@ namespace GitHubSearch
 
         private SearchCodeResult FindConfigurationFiles(string[] repos, string searchToken)
         {
-            var request = new SearchCodeRequest(searchToken);
+            var request = new SearchCodeRequest();
             foreach (var repo in repos)
             {
                 request.Repos.Add(repo);
