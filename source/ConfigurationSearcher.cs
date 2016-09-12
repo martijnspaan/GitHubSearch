@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Drawing;
 
+using GitHubSearch.Common;
+
 namespace GitHubSearch
 {
     internal class ConfigurationSearcher : IConfigurationSearcher
@@ -22,11 +24,13 @@ namespace GitHubSearch
 
         public void SearchFor(string searchToken)
         {
-            IEnumerable<ConfigFileHit> configurationFiles = FindAllConfigurationFiles(searchToken);            
+            IEnumerable<ConfigFileHit> configurationFiles = FindAllConfigurationFiles(searchToken);
 
-            configurationFiles = FilterConfigurationFilesWithSearchToken(configurationFiles, searchToken);            
+            ConfigFileHit[] hitFiles = FilterConfigurationFilesWithSearchToken(configurationFiles, searchToken);            
 
-            LogHits(configurationFiles, searchToken);
+            LogHits(hitFiles, searchToken);
+
+            WriteSummary(hitFiles, searchToken);
         }
 
         private IEnumerable<ConfigFileHit> FindAllConfigurationFiles(string searchToken)
@@ -42,7 +46,7 @@ namespace GitHubSearch
             return _gitHubAdapter.DownloadConfigurationFiles(repos, searchToken);
         }
 
-        private IEnumerable<ConfigFileHit> FilterConfigurationFilesWithSearchToken(IEnumerable<ConfigFileHit> configurationFiles, string searchToken)
+        private ConfigFileHit[] FilterConfigurationFilesWithSearchToken(IEnumerable<ConfigFileHit> configurationFiles, string searchToken)
         {
             ConcurrentBag<ConfigFileHit> hits = new ConcurrentBag<ConfigFileHit>();
 
@@ -62,7 +66,7 @@ namespace GitHubSearch
 
             ProgressIndicator.WaitTillFinished();
 
-            return hits;
+            return hits.ToArray();
         }
 
         private bool FindAllOccurences(ConfigFileHit configFile, string searchToken)
@@ -82,11 +86,11 @@ namespace GitHubSearch
             return configFile.FoundLineNumbers.Any();
         }
 
-        private void LogHits(IEnumerable<ConfigFileHit> configurationFiles, string searchToken)
+        private void LogHits(ConfigFileHit[] configurationFiles, string searchToken)
         {
             if (!configurationFiles.Any())
             {
-                Console.WriteLine($" Search token has not been found in any repository.");
+                Console.WriteLine(" Search token has not been found in any repository.");
                 return;
             }
 
@@ -155,7 +159,22 @@ namespace GitHubSearch
         private string GenerateCaseInsensitiveSearchTokenMatcher(string searchToken)
         {
             return searchToken.Aggregate(string.Empty, 
-                (value, c) => value += $"[{c.ToString().ToLower()}{c.ToString().ToUpper()}]");
+                (value, c) => value + $"[{c.ToString().ToLower()}{c.ToString().ToUpper()}]");
+        }
+
+        private void WriteSummary(ConfigFileHit[] configurationFiles, string searchToken)
+        {
+            if (configurationFiles.Any())
+            {
+                var repositories = configurationFiles.Select(x => x.RepositoryName).Distinct().ToArray();
+
+                Console.WriteLine();
+                Console.WriteLine(" [Summary] Found '{0}' on repositories:", searchToken);
+                foreach (var batch in repositories.BatchesOfMaxLength(70))
+                {
+                    Console.WriteLine(" " + batch);
+                }
+            }
         }
     }
 
