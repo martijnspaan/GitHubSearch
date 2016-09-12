@@ -45,7 +45,7 @@ namespace GitHubSearch
             get
             {
                 var version = Assembly.GetCallingAssembly().GetName().Version;
-                return $"{version.Major}.{version.Minor}.{version.Revision}";
+                return $"{version.Major}.{version.Minor}.{version.Build}";
             }
         }
     }
