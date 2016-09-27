@@ -71,7 +71,8 @@ namespace GitHubSearch
                     RepositoryName = fileInfo.Repository.Name,
                     Path = fileInfo.Path,
                     HtmlUrl = fileInfo.HtmlUrl,
-                    Content = _cache.GetCachedFileContent(fileInfo.Repository.Id, fileInfo.Path, fileInfo.Sha, DownloadFileContent)
+                    Content = _cache.GetCachedFileContent(fileInfo.Repository.Id, fileInfo.Repository.Name, fileInfo.Path, fileInfo.Sha,
+                        DownloadFileContent)
                 };
             }
         }

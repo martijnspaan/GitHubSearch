@@ -6,7 +6,7 @@ using Xunit;
 using FluentAssertions;
 
 namespace GitHubSearch.Specs
-{    
+{
     public class FileCacheSpecs
     {
         public FileCacheSpecs()
@@ -28,12 +28,13 @@ namespace GitHubSearch.Specs
         }
 
         [Fact]
-        public void When_cached_file_does_not_exists_it_should_return_cached_content()
+        public void When_cached_file_does_not_exists_it_should_download_the_content()
         {
             // Arrange
             var fileCache = new FileCache();
 
-            var repositoryId = 123;
+            int repositoryId = 123;
+            string repositoryName = "SomeRepo";
 
             var filePath = "SomeFile.txt";
 
@@ -42,7 +43,7 @@ namespace GitHubSearch.Specs
             var downloadContentFunc = A.Fake<Func<int, string, string>>();
 
             // Act
-            fileCache.GetCachedFileContent(repositoryId, filePath, sha, downloadContentFunc);
+            fileCache.GetCachedFileContent(repositoryId, repositoryName, filePath, sha, downloadContentFunc);
 
             // Assert
             A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).MustHaveHappened();
@@ -54,21 +55,21 @@ namespace GitHubSearch.Specs
             // Arrange
             var fileCache = new FileCache();
 
-            var repositoryId = 123;
-
             var filePath = "SomeFile.txt";
+            int repositoryId = 123;
+            string repositoryName = "SomeRepo";
 
             var sha = "8560328effd5fbee640e8aaef79b5ebc7ba1afe5";
 
             var content = "SomeContent";
 
-            var expectedFilePath = $".\\Cache\\{repositoryId}-{filePath}-{sha}.cache";
+            var expectedFilePath = $".\\Cache\\{repositoryName}\\{filePath}-{sha}.cache";
 
             var downloadContentFunc = A.Fake<Func<int, string, string>>();
             A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).Returns(content);
 
             // Act
-            fileCache.GetCachedFileContent(repositoryId, filePath, sha, downloadContentFunc);
+            fileCache.GetCachedFileContent(repositoryId, repositoryName, filePath, sha, downloadContentFunc);
 
             // Assert
             A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).MustHaveHappened();
@@ -82,21 +83,21 @@ namespace GitHubSearch.Specs
             // Arrange
             var fileCache = new FileCache();
 
-            var repositoryId = 123;
-
             var filePath = "SomeFile.txt";
+            int repositoryId = 123;
+            string repositoryName = "SomeRepo";
 
             var sha = "8560328effd5fbee640e8aaef79b5ebc7ba1afe5";
 
             var content = "SomeContent";
 
-            var expectedFilePath = $".\\Cache\\{repositoryId}-{filePath}-{sha}.cache";
+            var expectedFilePath = $".\\Cache\\{repositoryName}\\{filePath}-{sha}.cache";
 
             var downloadContentFunc = A.Fake<Func<int, string, string>>();
 
             // Act
             File.WriteAllText(expectedFilePath, content);
-            var cachedContent = fileCache.GetCachedFileContent(repositoryId, filePath, sha, downloadContentFunc);
+            var cachedContent = fileCache.GetCachedFileContent(repositoryId, repositoryName, filePath, sha, downloadContentFunc);
 
             // Assert
             A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).MustNotHaveHappened();
@@ -110,7 +111,8 @@ namespace GitHubSearch.Specs
             // Arrange
             var fileCache = new FileCache();
 
-            var repositoryId = 123;
+            int repositoryId = 123;
+            string repositoryName = "SomeRepo";
 
             var filePath = "SomeFile.txt";
 
@@ -121,9 +123,9 @@ namespace GitHubSearch.Specs
             var oldContent = "SomeOldContent";
             var newContent = "SomeNewContent";
 
-            var oldCacheFile1 = $".\\Cache\\{repositoryId}-{filePath}-{oldSha1}.cache";
-            var oldCacheFile2 = $".\\Cache\\{repositoryId}-{filePath}-{oldSha2}.cache";
-            var newCacheFile = $".\\Cache\\{repositoryId}-{filePath}-{newSha}.cache";
+            var oldCacheFile1 = $".\\Cache\\{repositoryName}\\{filePath}-{oldSha1}.cache";
+            var oldCacheFile2 = $".\\Cache\\{repositoryName}\\{filePath}-{oldSha2}.cache";
+            var newCacheFile = $".\\Cache\\{repositoryName}\\{filePath}-{newSha}.cache";
 
             var downloadContentFunc = A.Fake<Func<int, string, string>>();
             A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).Returns(newContent);
@@ -131,7 +133,7 @@ namespace GitHubSearch.Specs
             // Act
             File.WriteAllText(oldCacheFile1, oldContent);
             File.WriteAllText(oldCacheFile2, oldContent);
-            fileCache.GetCachedFileContent(repositoryId, filePath, newSha, downloadContentFunc);
+            fileCache.GetCachedFileContent(repositoryId, repositoryName, filePath, newSha, downloadContentFunc);
 
             // Assert
             A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).MustHaveHappened();

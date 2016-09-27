@@ -17,24 +17,24 @@ namespace GitHubSearch
                 Directory.CreateDirectory(LocalCacheFolder);
             }
         }
-                
+
         /// <summary>
         /// Loads the search hit from local cache folder when available. Reverts to supplied loadContent function when not found in cache.
         /// </summary>
-        public string GetCachedFileContent(int repositoryId, string filePath, string sha, Func<int, string, string> loadContent)
+        public string GetCachedFileContent(int repositoryId, string repositoryName, string filePath, string sha, Func<int, string, string> loadContent)
         {
-            var cacheKey = CreateCacheKey(repositoryId, filePath, sha);
+            var cacheKey = CreateCacheKey(filePath, sha);
 
-            var cachedFilePath = $"{LocalCacheFolder}\\{cacheKey}.cache";
+            var cachedFilePath = $"{LocalCacheFolder}\\{repositoryName}\\{cacheKey}.cache";
 
             if (File.Exists(cachedFilePath))
             {
                 return File.ReadAllText(cachedFilePath);
             }
 
-            var actualContent = loadContent(repositoryId, filePath);
+            string actualContent = loadContent(repositoryId, filePath);
 
-            ClearCacheFor(repositoryId, filePath);
+            ClearCacheFor(repositoryName, filePath);
 
             StoreInCache(cachedFilePath, actualContent);
 
@@ -43,27 +43,38 @@ namespace GitHubSearch
 
         private static void StoreInCache(string cachedFilePath, string actualContent)
         {
+            DirectoryInfo folder = Directory.GetParent(cachedFilePath);
+
+            if (!Directory.Exists(folder.FullName))
+            {
+                Directory.CreateDirectory(folder.FullName);
+            }
+
             File.WriteAllText(cachedFilePath, actualContent);
         }
 
-        private string CreateCacheKey(int repositoryId, string filePath, string sha)
+        private string CreateCacheKey(string filePath, string sha)
         {
             var fileKey = filePath.Replace("/", "-");
-            return $"{repositoryId}-{fileKey}-{sha}";
+            return $"{fileKey}-{sha}";
         }
 
-        private static void ClearCacheFor(int repositoryId, string filePath)
+        private static void ClearCacheFor(string repositoryName, string filePath)
         {
-            var fileKey = filePath.Replace("/", "-");
-            foreach (var path in Directory.EnumerateFiles(LocalCacheFolder, $"{repositoryId}-{fileKey}*.*"))
+            string directoryPath = $"{LocalCacheFolder}\\{repositoryName}";
+            if (Directory.Exists(directoryPath))
             {
-                File.Delete(path);
+                var fileKey = filePath.Replace("/", "-");
+                foreach (var path in Directory.EnumerateFiles(directoryPath, $"{fileKey}*.*"))
+                {
+                    File.Delete(path);
+                }
             }
         }
     }
 
     internal interface IFileCache
     {
-        string GetCachedFileContent(int repositoryId, string filePath, string sha, Func<int, string, string> loadContent);
+        string GetCachedFileContent(int repositoryId, string repositoryName, string filePath, string sha, Func<int, string, string> loadContent);
     }
 }
