@@ -24,8 +24,9 @@ namespace GitHubSearch
 
         public void Search(Options options)
         {
-            IEnumerable<ConfigFileHit> configurationFiles = FindAllConfigurationFiles(options.SearchToken);
+            IEnumerable<ConfigFileHit> configurationFiles = FindAllConfigurationFiles();
 
+            Console.WriteLine($" Start searching for '{options.SearchToken}'");
             ConfigFileHit[] hitFiles = FilterConfigurationFilesWithSearchToken(configurationFiles, options.SearchToken);
 
             if (!options.SuppressLoggingOfHitLines)
@@ -36,17 +37,14 @@ namespace GitHubSearch
             WriteSummary(hitFiles, options.SearchToken);
         }
 
-        private IEnumerable<ConfigFileHit> FindAllConfigurationFiles(string searchToken)
+        private IEnumerable<ConfigFileHit> FindAllConfigurationFiles()
         {
-            Console.WriteLine();
-            Console.WriteLine($" Searching GitHub for repositories on {_configuration.GithubTargetName}");
-
             string[] repos = _gitHubAdapter.FindRepositories();
 
             Console.WriteLine();
-            Console.WriteLine($" Searching through {repos.Length} repositories for '{searchToken}'");
+            Console.WriteLine($" Downloading files matching '{_configuration.FilenameFilter}' from {repos.Length} GitHub repositories owned by {_configuration.GithubTargetName}");
 
-            return _gitHubAdapter.DownloadConfigurationFiles(repos, searchToken);
+            return _gitHubAdapter.DownloadConfigurationFiles(repos);
         }
 
         private ConfigFileHit[] FilterConfigurationFilesWithSearchToken(IEnumerable<ConfigFileHit> configurationFiles, string searchToken)
@@ -169,13 +167,17 @@ namespace GitHubSearch
         {
             if (configurationFiles.Any())
             {
-                var repositories = configurationFiles.Select(x => x.RepositoryName).Distinct().ToArray();
+                string[] repositories = configurationFiles
+                    .Select(x => x.RepositoryName)
+                    .Distinct()
+                    .OrderBy(name => name)
+                    .ToArray();
 
                 Console.WriteLine();
-                Console.WriteLine(" [Summary] Found '{0}' on repositories:", searchToken);
-                foreach (var batch in repositories.BatchesOfMaxLength(70))
+                Console.WriteLine($" Files matching '{_configuration.FilenameFilter}' and containing '{searchToken}' were found in the following {repositories.Length} repositories:");
+                foreach (string batch in repositories)
                 {
-                    Console.WriteLine(" " + batch);
+                    Console.WriteLine(" - " + batch);
                 }
             }
         }
