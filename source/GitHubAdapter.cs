@@ -57,9 +57,9 @@ namespace GitHubSearch
                 .ToArray();
         }
 
-        public IEnumerable<ConfigFileHit> DownloadConfigurationFiles(string[] repos, string searchToken)
+        public IEnumerable<ConfigFileHit> DownloadConfigurationFiles(string[] repos)
         {
-            SearchCodeResult result = FindConfigurationFiles(repos, searchToken);
+            SearchCodeResult result = FindConfigurationFiles(repos);
 
             // Because of yield, cannot return the total count
             CurrentSearchItemsCount = result.TotalCount;
@@ -76,7 +76,7 @@ namespace GitHubSearch
             }
         }
 
-        private SearchCodeResult FindConfigurationFiles(string[] repos, string searchToken)
+        private SearchCodeResult FindConfigurationFiles(string[] repos)
         {
             var request = new SearchCodeRequest();
             foreach (var repo in repos)
@@ -115,7 +115,7 @@ namespace GitHubSearch
 
         /// <summary>
         /// Initialized the access token used to authenticate with the GitHub API.
-        /// </summary>        
+        /// </summary>
         /// <returns>Returns true when the access token is valid, otherwise false.</returns>
         bool InitAccessToken(string accessToken);
 
@@ -127,6 +127,6 @@ namespace GitHubSearch
         /// <summary>
         /// Lazily yields a list of downloaded configuration files.
         /// </summary>
-        IEnumerable<ConfigFileHit> DownloadConfigurationFiles(string[] repos, string searchToken);
+        IEnumerable<ConfigFileHit> DownloadConfigurationFiles(string[] repos);
     }
 }

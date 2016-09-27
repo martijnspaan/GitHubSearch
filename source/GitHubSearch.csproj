@@ -62,7 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\Bootstrapper.cs" />
-    <Compile Include="Common\ExtensionMethods.cs" />
     <Compile Include="ConfigFileResult.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationSearcher.cs" />
