@@ -22,15 +22,18 @@ namespace GitHubSearch
             _configuration = configuration;
         }
 
-        public void SearchFor(string searchToken)
+        public void Search(Options options)
         {
-            IEnumerable<ConfigFileHit> configurationFiles = FindAllConfigurationFiles(searchToken);
+            IEnumerable<ConfigFileHit> configurationFiles = FindAllConfigurationFiles(options.SearchToken);
 
-            ConfigFileHit[] hitFiles = FilterConfigurationFilesWithSearchToken(configurationFiles, searchToken);            
+            ConfigFileHit[] hitFiles = FilterConfigurationFilesWithSearchToken(configurationFiles, options.SearchToken);
 
-            LogHits(hitFiles, searchToken);
+            if (!options.SuppressLoggingOfHitLines)
+            {
+                LogHits(hitFiles, options.SearchToken);
+            }
 
-            WriteSummary(hitFiles, searchToken);
+            WriteSummary(hitFiles, options.SearchToken);
         }
 
         private IEnumerable<ConfigFileHit> FindAllConfigurationFiles(string searchToken)
@@ -154,11 +157,11 @@ namespace GitHubSearch
             styleSheet.AddStyle(GenerateCaseInsensitiveSearchTokenMatcher(searchToken), Color.MediumSlateBlue);
 
             Colorful.Console.WriteLineStyled(text, styleSheet);
-        }        
+        }
 
         private string GenerateCaseInsensitiveSearchTokenMatcher(string searchToken)
         {
-            return searchToken.Aggregate(string.Empty, 
+            return searchToken.Aggregate(string.Empty,
                 (value, c) => value + $"[{c.ToString().ToLower()}{c.ToString().ToUpper()}]");
         }
 
@@ -185,7 +188,7 @@ namespace GitHubSearch
     {
         /// <summary>
         /// Searches for the specified search token.
-        /// </summary>        
-        void SearchFor(string searchToken);
+        /// </summary>
+        void Search(Options options);
     }
 }
