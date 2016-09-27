@@ -5,7 +5,7 @@ namespace GitHubSearch
 {
     internal class GitHubClientFactory : IGitHubClientFactory
     {
-        private static readonly ProductHeaderValue ProductHeader = new ProductHeaderValue("GitHubSearch", Program.ProductVersion);
+        private static readonly ProductHeaderValue ProductHeader = new ProductHeaderValue("GitHubSearch", Options.ProductVersion);
 
         public IGitHubClient Create(string accessToken)
         {

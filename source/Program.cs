@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Reflection;
+
+using CommandLine;
+
 using GitHubSearch.Common;
 
 namespace GitHubSearch
@@ -8,22 +11,32 @@ namespace GitHubSearch
     {
         static void Main(string[] args)
         {
-            Console.WriteLine();
-            Console.WriteLine($" GitHubSearch version {ProductVersion}");
+            Options options = GetCommandLineOptions(args);
 
-            if (args.Length <= 0)
+            PerformSearch(options);
+        }
+
+        private static Options GetCommandLineOptions(string[] args)
+        {
+            var options = new Options();
+            Parser.Default.ParseArgumentsStrict(args, options);
+            if (!options.IsValid)
             {
-                Console.WriteLine();
-                Console.WriteLine(@" Usage: GitHubSearch.exe ""<searchtoken>""");
+                Console.WriteLine(options.GetUsage());
                 Environment.Exit(1);
             }
 
+            return options;
+        }
+
+        private static void PerformSearch(Options options)
+        {
             try
             {
                 var container = Bootstrapper.Start();
 
                 var searcher = container.Resolve<IConfigurationSearcher>();
-                searcher.SearchFor(args[0]);
+                searcher.Search(options);
             }
             catch (AggregateException aggregateException)
             {
@@ -37,15 +50,6 @@ namespace GitHubSearch
             {
                 Console.WriteLine();
                 Console.WriteLine(ex.Message);
-            }
-        }
-
-        internal static string ProductVersion
-        {
-            get
-            {
-                var version = Assembly.GetCallingAssembly().GetName().Version;
-                return $"{version.Major}.{version.Minor}.{version.Build}";
             }
         }
     }
