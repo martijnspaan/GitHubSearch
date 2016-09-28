@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using FakeItEasy;
 using Xunit;
 
@@ -9,51 +8,28 @@ namespace GitHubSearch.Specs
 {
     public class FileCacheSpecs
     {
-        public FileCacheSpecs()
-        {
-            if (Directory.Exists(".\\Cache"))
-            {
-                Directory.Delete(".\\Cache", true);
-            }
-        }
-
         [Fact]
         public void When_instantiated_it_should_create_cache_folder()
         {
-            // Act
-            var fileCache = new FileCache();
-
-            // Assert
-            Directory.Exists(".\\Cache").Should().BeTrue();
-        }
-
-        [Fact]
-        public void When_cached_file_does_not_exists_it_should_download_the_content()
-        {
             // Arrange
-            var fileCache = new FileCache();
-
-            int repositoryId = 123;
-            string repositoryName = "SomeRepo";
-
-            var filePath = "SomeFile.txt";
-
-            var sha = "8560328effd5fbee640e8aaef79b5ebc7ba1afe5";
-
-            var downloadContentFunc = A.Fake<Func<int, string, string>>();
+            var fileSystem = A.Fake<IFileSystem>();
+            A.CallTo(() => fileSystem.DirectoryExists(".\\Cache")).Returns(false);
 
             // Act
-            fileCache.GetCachedFileContent(repositoryId, repositoryName, filePath, sha, downloadContentFunc);
+            var fileCache = new FileCache(fileSystem);
 
             // Assert
-            A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).MustHaveHappened();
+            A.CallTo(() => fileSystem.EnsureDirectoryExists(".\\Cache")).MustHaveHappened();
         }
 
         [Fact]
         public void When_cached_file_does_not_exists_it_should_be_created()
         {
             // Arrange
-            var fileCache = new FileCache();
+            var fileSystem = A.Fake<IFileSystem>();
+            A.CallTo(() => fileSystem.FileExists(A<string>._)).Returns(false);
+
+            var fileCache = new FileCache(fileSystem);
 
             var filePath = "SomeFile.txt";
             int repositoryId = 123;
@@ -72,31 +48,32 @@ namespace GitHubSearch.Specs
             fileCache.GetCachedFileContent(repositoryId, repositoryName, filePath, sha, downloadContentFunc);
 
             // Assert
-            A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).MustHaveHappened();
-            File.Exists(expectedFilePath).Should().BeTrue();
-            File.ReadAllText(expectedFilePath).Should().Be(content);
+            A.CallTo(() => downloadContentFunc.Invoke(123, filePath)).MustHaveHappened();
+            A.CallTo(() => fileSystem.WriteAllText(expectedFilePath, content)).MustHaveHappened();
         }
 
         [Fact]
         public void When_cached_file_exists_it_should_be_loaded_from_cache()
         {
             // Arrange
-            var fileCache = new FileCache();
+            var fileSystem = A.Fake<IFileSystem>();
+            A.CallTo(() => fileSystem.FileExists(A<string>._)).Returns(true);
 
-            var filePath = "SomeFile.txt";
+            var fileCache = new FileCache(fileSystem);
+
             int repositoryId = 123;
             string repositoryName = "SomeRepo";
-
+            var filePath = "SomeFile.txt";
             var sha = "8560328effd5fbee640e8aaef79b5ebc7ba1afe5";
 
-            var content = "SomeContent";
-
             var expectedFilePath = $".\\Cache\\{repositoryName}\\{filePath}-{sha}.cache";
+
+            string content = "SomeContent";
+            A.CallTo(() => fileSystem.ReadAllText(expectedFilePath)).Returns(content);
 
             var downloadContentFunc = A.Fake<Func<int, string, string>>();
 
             // Act
-            File.WriteAllText(expectedFilePath, content);
             var cachedContent = fileCache.GetCachedFileContent(repositoryId, repositoryName, filePath, sha, downloadContentFunc);
 
             // Assert
@@ -109,38 +86,44 @@ namespace GitHubSearch.Specs
         public void When_file_is_downloaded_it_should_clear_old_cache_files()
         {
             // Arrange
-            var fileCache = new FileCache();
+            var fileSystem = A.Fake<IFileSystem>();
+            A.CallTo(() => fileSystem.FileExists(A<string>._)).Returns(false);
+
+            var fileCache = new FileCache(fileSystem);
 
             int repositoryId = 123;
             string repositoryName = "SomeRepo";
 
-            var filePath = "SomeFile.txt";
+            string filePath = "SomeFile.txt";
 
-            var oldSha1 = "8560328effd5fbee640e8aaef79b5ebc7ba1afe5";
-            var oldSha2 = "6ce7bf64673d40e7b5b3d13f4f1f992c1ea37119";
-            var newSha = "b12351820c868918f4df7cfef35b7bc70a878bd5";
+            string oldSha1 = "8560328effd5fbee640e8aaef79b5ebc7ba1afe5";
+            string oldSha2 = "6ce7bf64673d40e7b5b3d13f4f1f992c1ea37119";
+            string newSha = "b12351820c868918f4df7cfef35b7bc70a878bd5";
 
-            var oldContent = "SomeOldContent";
-            var newContent = "SomeNewContent";
+            string oldContent = "SomeOldContent";
+            string newContent = "SomeNewContent";
 
-            var oldCacheFile1 = $".\\Cache\\{repositoryName}\\{filePath}-{oldSha1}.cache";
-            var oldCacheFile2 = $".\\Cache\\{repositoryName}\\{filePath}-{oldSha2}.cache";
-            var newCacheFile = $".\\Cache\\{repositoryName}\\{filePath}-{newSha}.cache";
+            string oldCacheFile1 = $".\\Cache\\{repositoryName}\\{filePath}-{oldSha1}.cache";
+            string oldCacheFile2 = $".\\Cache\\{repositoryName}\\{filePath}-{oldSha2}.cache";
+            string newCacheFile = $".\\Cache\\{repositoryName}\\{filePath}-{newSha}.cache";
+
+            string repositoryCacheDirectory = $".\\Cache\\{repositoryName}";
+            A.CallTo(() => fileSystem.EnumerateFiles(repositoryCacheDirectory, A<string>._))
+                .Returns(new [] { oldCacheFile1, oldCacheFile2 });
+            A.CallTo(() => fileSystem.ReadAllText(oldCacheFile1)).Returns(oldContent);
+            A.CallTo(() => fileSystem.ReadAllText(oldCacheFile2)).Returns(oldContent);
 
             var downloadContentFunc = A.Fake<Func<int, string, string>>();
             A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).Returns(newContent);
 
             // Act
-            File.WriteAllText(oldCacheFile1, oldContent);
-            File.WriteAllText(oldCacheFile2, oldContent);
             fileCache.GetCachedFileContent(repositoryId, repositoryName, filePath, newSha, downloadContentFunc);
 
             // Assert
             A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).MustHaveHappened();
-            File.Exists(oldCacheFile1).Should().BeFalse();
-            File.Exists(oldCacheFile2).Should().BeFalse();
-            File.Exists(newCacheFile).Should().BeTrue();
-            File.ReadAllText(newCacheFile).Should().Be(newContent);
+            A.CallTo(() => fileSystem.DeleteFile(oldCacheFile1)).MustHaveHappened();
+            A.CallTo(() => fileSystem.DeleteFile(oldCacheFile2)).MustHaveHappened();
+            A.CallTo(() => fileSystem.WriteAllText(newCacheFile, newContent)).MustHaveHappened();
         }
     }
 }

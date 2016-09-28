@@ -22,6 +22,7 @@ namespace GitHubSearch.Common
         {
             var container = TinyIoCContainer.Current;
 
+            container.Register<IFileSystem, FileSystem>();
             container.Register<IFileCache, FileCache>();
             container.Register<IConfiguration, Configuration>();
             container.Register<IGitHubClientFactory, GitHubClientFactory>();
