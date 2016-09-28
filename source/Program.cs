@@ -35,7 +35,7 @@ namespace GitHubSearch
             {
                 var container = Bootstrapper.Start();
 
-                var searcher = container.Resolve<IConfigurationSearcher>();
+                var searcher = container.Resolve<IFileSearcher>();
                 searcher.Search(options);
             }
             catch (AggregateException aggregateException)

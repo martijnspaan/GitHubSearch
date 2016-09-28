@@ -57,26 +57,26 @@ namespace GitHubSearch
                 .ToArray();
         }
 
-        public IEnumerable<ConfigFileHit> DownloadConfigurationFiles(string[] repos)
+        public IEnumerable<FileHit> DownloadMatchingFiles(string[] repos)
         {
-            SearchCodeResult result = FindConfigurationFiles(repos);
+            SearchCodeResult result = FindMatchingFiles(repos);
 
             // Because of yield, cannot return the total count
             CurrentSearchItemsCount = result.TotalCount;
 
-            foreach (SearchCode configFileInfo in result.Items)
+            foreach (SearchCode fileInfo in result.Items)
             {
-                yield return new ConfigFileHit
+                yield return new FileHit
                 {
-                    RepositoryName = configFileInfo.Repository.Name,
-                    Path = configFileInfo.Path,
-                    HtmlUrl = configFileInfo.HtmlUrl,
-                    Content = _cache.GetCachedFileContent(configFileInfo.Repository.Id, configFileInfo.Path, configFileInfo.Sha, DownloadFileContent)
+                    RepositoryName = fileInfo.Repository.Name,
+                    Path = fileInfo.Path,
+                    HtmlUrl = fileInfo.HtmlUrl,
+                    Content = _cache.GetCachedFileContent(fileInfo.Repository.Id, fileInfo.Path, fileInfo.Sha, DownloadFileContent)
                 };
             }
         }
 
-        private SearchCodeResult FindConfigurationFiles(string[] repos)
+        private SearchCodeResult FindMatchingFiles(string[] repos)
         {
             var request = new SearchCodeRequest();
             foreach (var repo in repos)
@@ -125,8 +125,8 @@ namespace GitHubSearch
         string[] FindRepositories();
 
         /// <summary>
-        /// Lazily yields a list of downloaded configuration files.
+        /// Lazily yields a list of downloaded files that match the file filter.
         /// </summary>
-        IEnumerable<ConfigFileHit> DownloadConfigurationFiles(string[] repos);
+        IEnumerable<FileHit> DownloadMatchingFiles(string[] repos);
     }
 }
