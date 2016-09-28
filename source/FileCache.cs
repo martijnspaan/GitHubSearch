@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace GitHubSearch
 {
@@ -8,14 +7,14 @@ namespace GitHubSearch
     /// </summary>
     internal class FileCache : IFileCache
     {
+        private readonly IFileSystem fileSystem;
         private const string LocalCacheFolder = ".\\Cache";
 
-        public FileCache()
+        public FileCache(IFileSystem fileSystem)
         {
-            if (!Directory.Exists(LocalCacheFolder))
-            {
-                Directory.CreateDirectory(LocalCacheFolder);
-            }
+            this.fileSystem = fileSystem;
+
+            fileSystem.EnsureDirectoryExists(LocalCacheFolder);
         }
 
         /// <summary>
@@ -23,13 +22,13 @@ namespace GitHubSearch
         /// </summary>
         public string GetCachedFileContent(int repositoryId, string repositoryName, string filePath, string sha, Func<int, string, string> loadContent)
         {
-            var cacheKey = CreateCacheKey(filePath, sha);
+            string cacheKey = CreateCacheKey(filePath, sha);
 
-            var cachedFilePath = $"{LocalCacheFolder}\\{repositoryName}\\{cacheKey}.cache";
+            string cachedFilePath = $"{LocalCacheFolder}\\{repositoryName}\\{cacheKey}.cache";
 
-            if (File.Exists(cachedFilePath))
+            if (fileSystem.FileExists(cachedFilePath))
             {
-                return File.ReadAllText(cachedFilePath);
+                return fileSystem.ReadAllText(cachedFilePath);
             }
 
             string actualContent = loadContent(repositoryId, filePath);
@@ -41,34 +40,25 @@ namespace GitHubSearch
             return actualContent;
         }
 
-        private static void StoreInCache(string cachedFilePath, string actualContent)
+        private void StoreInCache(string cachedFilePath, string actualContent)
         {
-            DirectoryInfo folder = Directory.GetParent(cachedFilePath);
-
-            if (!Directory.Exists(folder.FullName))
-            {
-                Directory.CreateDirectory(folder.FullName);
-            }
-
-            File.WriteAllText(cachedFilePath, actualContent);
+            fileSystem.WriteAllText(cachedFilePath, actualContent);
         }
 
         private string CreateCacheKey(string filePath, string sha)
         {
-            var fileKey = filePath.Replace("/", "-");
+            string fileKey = filePath.Replace("/", "-");
             return $"{fileKey}-{sha}";
         }
 
-        private static void ClearCacheFor(string repositoryName, string filePath)
+        private void ClearCacheFor(string repositoryName, string filePath)
         {
             string directoryPath = $"{LocalCacheFolder}\\{repositoryName}";
-            if (Directory.Exists(directoryPath))
+            string fileKey = filePath.Replace("/", "-");
+
+            foreach (string path in fileSystem.EnumerateFiles(directoryPath, $"{fileKey}*.*"))
             {
-                var fileKey = filePath.Replace("/", "-");
-                foreach (var path in Directory.EnumerateFiles(directoryPath, $"{fileKey}*.*"))
-                {
-                    File.Delete(path);
-                }
+                fileSystem.DeleteFile(path);
             }
         }
     }

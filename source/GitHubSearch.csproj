@@ -66,8 +66,10 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="FileSearcher.cs" />
     <Compile Include="FileCache.cs" />
+    <Compile Include="FileSystem.cs" />
     <Compile Include="GitHubAdapter.cs" />
     <Compile Include="GitHubClientFactory.cs" />
+    <Compile Include="IFileSystem.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgressIndicator.cs" />
