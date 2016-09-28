@@ -87,12 +87,6 @@ namespace GitHubSearch
 
         private void LogHits(FileHit[] files, string searchToken)
         {
-            if (!files.Any())
-            {
-                Console.WriteLine(" Search token has not been found in any repository.");
-                return;
-            }
-
             string lastRepo = string.Empty;
             foreach (var hit in files.OrderBy(x => x.RepositoryName))
             {
@@ -165,18 +159,26 @@ namespace GitHubSearch
         {
             if (fileHits.Any())
             {
-                string[] repositories = fileHits
-                    .Select(x => x.RepositoryName)
-                    .Distinct()
-                    .OrderBy(name => name)
-                    .ToArray();
+                IEnumerable<IGrouping<string, FileHit>> filesGroupedByRepository = fileHits
+                    .GroupBy(h => h.RepositoryName, h => h)
+                    .OrderBy(g => g.Key);
 
                 Console.WriteLine();
-                Console.WriteLine($" Files matching '{_configuration.FilenameFilter}' and containing '{searchToken}' were found in the following {repositories.Length} repositories:");
-                foreach (string batch in repositories)
+                Console.WriteLine(
+                    $" Files matching '{_configuration.FilenameFilter}' and containing '{searchToken}' were found in the following {filesGroupedByRepository.Count()} repositories:");
+
+                foreach (IGrouping<string, FileHit> grouping in filesGroupedByRepository)
                 {
-                    Console.WriteLine(" - " + batch);
+                    string repository = grouping.Key;
+                    FileHit[] fileHitsInRepo = grouping.ToArray();
+                    int totalHitCount = fileHitsInRepo.Aggregate(0, (count, fileHit) => count + fileHit.FoundLineNumbers.Count);
+
+                    Console.WriteLine($" - {repository} ({fileHitsInRepo.Length} file(s) ; {totalHitCount} hits)");
                 }
+            }
+            else
+            {
+                Console.WriteLine($" '{searchToken}' has not been found in any repository.");
             }
         }
     }
