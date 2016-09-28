@@ -26,7 +26,7 @@ namespace GitHubSearch.Common
             container.Register<IConfiguration, Configuration>();
             container.Register<IGitHubClientFactory, GitHubClientFactory>();
             container.Register<IGitHubAdapter, GitHubAdapter>();
-            container.Register<IConfigurationSearcher, ConfigurationSearcher>();
+            container.Register<IFileSearcher, FileSearcher>();
 
             var configuration = container.Resolve<IConfiguration>();
             var adapter = container.Resolve<IGitHubAdapter>();
