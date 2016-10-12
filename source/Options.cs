@@ -10,6 +10,21 @@ namespace GitHubSearch
         [Option('q', "quiet", Required = false, DefaultValue = false, HelpText = "Suppresses the logging of hit lines.")]
         public bool SuppressLoggingOfHitLines { get; set; }
 
+        [Option('t', "target", Required = false, DefaultValue = null, HelpText = "The name of either organization or user containing the repositories to search through. This will override the 'GithubTargetName' value in the configuration file.")]
+        public string GithubTargetName { get; set; }
+
+        [Option('r', "repositories", Required = false, DefaultValue = null, HelpText = "The filter for repositories to search through. This will override the 'RepositoryFilters' value in the configuration file.")]
+        public string RepositoryFilters { get; set; }
+
+        [Option('f', "filename", Required = false, DefaultValue = null, HelpText = "The filter for filenames to search for. Bound to the search rules of GitHub search. This will override the 'FilenameFilter' value in the configuration file.")]
+        public string FilenameFilter { get; set; }
+
+        [Option('o', "output", Required = false, DefaultValue = null, HelpText = "Specifies how the filename is shown in the output. Options: Path, HtmlUrl. This will override the 'OutputMode' value in the configuration file.")]
+        public string OutputMode { get; set; }
+
+        [Option('l', "lines", Required = false, DefaultValue = null, HelpText = "Specifies the amount of lines shown above and below the highlighted line. This will override the 'SurroundingLines' value in the configuration file.")]
+        public int? SurroundingLines { get; set; }
+
         [ValueOption(0)]
         public string SearchToken { get; set; }
 

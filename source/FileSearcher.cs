@@ -10,17 +10,19 @@ namespace GitHubSearch
 {
     internal class FileSearcher : IFileSearcher
     {
+        private readonly Options options;
         private readonly IGitHubAdapter _gitHubAdapter;
 
         private readonly IConfiguration _configuration;
 
-        public FileSearcher(IGitHubAdapter gitHubAdapter, IConfiguration configuration)
+        public FileSearcher(Options options, IGitHubAdapter gitHubAdapter, IConfiguration configuration)
         {
+            this.options = options;
             _gitHubAdapter = gitHubAdapter;
             _configuration = configuration;
         }
 
-        public void Search(Options options)
+        public void Search()
         {
             IEnumerable<FileHit> matchingFiles = FindAllMatchingFiles();
 
@@ -191,6 +193,6 @@ namespace GitHubSearch
         /// <summary>
         /// Searches for the specified search token.
         /// </summary>
-        void Search(Options options);
+        void Search();
     }
 }

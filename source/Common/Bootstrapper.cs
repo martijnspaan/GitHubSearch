@@ -15,12 +15,11 @@ namespace GitHubSearch.Common
                 {"FilenameFilter", c => !string.IsNullOrEmpty(c.FilenameFilter)}
             };
 
-
-        // "GithubTargetName", "RepositoryFilters", "FilenameFilter"
-
-        public static TinyIoCContainer Start()
+        public static TinyIoCContainer Start(Options options)
         {
             var container = TinyIoCContainer.Current;
+
+            container.Register(options);
 
             container.Register<IFileSystem, FileSystem>();
             container.Register<IFileCache, FileCache>();

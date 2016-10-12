@@ -6,6 +6,8 @@ namespace GitHubSearch
 {
     internal class Configuration : IConfiguration
     {
+        private readonly Options options;
+
         private string _outputMode;
         private int? _surroundingLines;
         private string _githubTargetName;
@@ -13,27 +15,30 @@ namespace GitHubSearch
         private string _filenameFilter;
         private string _githubAccessToken;
 
-        public string OutputMode => _outputMode ?? (_outputMode = ConfigurationManager.AppSettings["OutputMode"]);
+        public string OutputMode => _outputMode ?? (_outputMode = options.OutputMode ?? ConfigurationManager.AppSettings["OutputMode"]);
 
-        public int SurroundingLines => (_surroundingLines ?? (_surroundingLines = int.Parse(ConfigurationManager.AppSettings["SurroundingLines"]))).Value;
+        public int SurroundingLines => (_surroundingLines ?? (_surroundingLines = options.SurroundingLines ?? int.Parse(ConfigurationManager.AppSettings["SurroundingLines"]))).Value;
 
-        public string GithubTargetName => _githubTargetName ?? (_githubTargetName = ConfigurationManager.AppSettings["GithubTargetName"]);
+        public string GithubTargetName => _githubTargetName ?? (_githubTargetName = options.GithubTargetName ?? ConfigurationManager.AppSettings["GithubTargetName"]);
 
         public string[] RepositoryFilters => _repositoryFilters ?? (_repositoryFilters = GetRepositoryFilters());
 
-        public string FilenameFilter => _filenameFilter ?? (_filenameFilter = ConfigurationManager.AppSettings["FilenameFilter"]);
+        public string FilenameFilter => _filenameFilter ?? (_filenameFilter = options.FilenameFilter ?? ConfigurationManager.AppSettings["FilenameFilter"]);
 
         public string GithubAccessToken => _githubAccessToken ?? (_githubAccessToken = ConfigurationManager.AppSettings["GithubAccessToken"]);
-        
+
+        public Configuration(Options options)
+        {
+            this.options = options;
+        }
+
         private string[] GetRepositoryFilters()
         {
-            var repositoryFilters = ConfigurationManager.AppSettings["RepositoryFilters"];
+            var repositoryFilters = options.RepositoryFilters ?? ConfigurationManager.AppSettings["RepositoryFilters"];
             return repositoryFilters.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => $"^{x}$")
                 .ToArray();
         }
-
-
 
         public void StoreAccessToken(string accessToken)
         {

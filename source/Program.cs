@@ -33,10 +33,10 @@ namespace GitHubSearch
         {
             try
             {
-                var container = Bootstrapper.Start();
+                var container = Bootstrapper.Start(options);
 
                 var searcher = container.Resolve<IFileSearcher>();
-                searcher.Search(options);
+                searcher.Search();
             }
             catch (AggregateException aggregateException)
             {
