@@ -2,6 +2,10 @@
 
 Born from the limitation that the online [GitHub search](https://help.github.com/articles/searching-code/) has, where files larger than 384 KB are not indexed. This commandline search will download (and cache) the files before searching.
 
+## Downloads
+
+Last stable release: [GitHubSearch 1.2.0](https://github.com/martijnspaan/GitHubSearch/releases/download/1.2.0/GitHubSearch_1.2.0.zip)
+
 ## License 
 
 Licensed under the [MIT License](https://github.com/martijnspaan/GitHubSearch/blob/master/LICENSE)
