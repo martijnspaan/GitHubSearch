@@ -80,7 +80,7 @@ namespace GitHubSearch
 
         public static void SetTotal(int total)
         {
-            _total = Math.Min(1, total);
+            _total = Math.Max(1, total);
         }
 
         public static void Step()
