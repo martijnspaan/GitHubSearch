@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Configuration;
+using System.Drawing;
 using System.Linq;
+using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace GitHubSearch
 {
@@ -42,10 +45,23 @@ namespace GitHubSearch
 
         public void StoreAccessToken(string accessToken)
         {
-            System.Configuration.Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            config.AppSettings.Settings["GithubAccessToken"].Value = accessToken;
-            config.Save(ConfigurationSaveMode.Modified);
-            ConfigurationManager.RefreshSection("appSettings");
+            try
+            {
+                var configDoc = XDocument.Load(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, LoadOptions.PreserveWhitespace);
+
+                var accessTokenNode = configDoc.XPathSelectElement("//appSettings/add[@key='GithubAccessToken']");
+                XAttribute xAttribute = accessTokenNode.Attribute("value");
+                if (xAttribute != null)
+                {
+                    xAttribute.Value = accessToken;
+                }
+                configDoc.Save(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            }
+            catch (Exception ex)
+            {
+                Colorful.Console.WriteLine(" Failed to store access token in configuration file " + AppDomain.CurrentDomain.SetupInformation.ConfigurationFile, Color.Red);
+                Colorful.Console.WriteLine(" " + ex.Message, Color.Red);
+            }
         }
     }
 
