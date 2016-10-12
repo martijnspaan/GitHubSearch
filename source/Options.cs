@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 
 using CommandLine;
 using CommandLine.Text;
@@ -47,6 +48,9 @@ namespace GitHubSearch
             help.AddPreOptionsLine(" ");
             help.AddPreOptionsLine(@"Usage: GitHubSearch.exe <searchtoken> [options]");
             help.AddOptions(this);
+            help.AddPreOptionsLine(" ");
+            help.AddPostOptionsLine("Configuration file containing defaults can be found at:");
+            help.AddPostOptionsLine(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
 
             return help;
         }
