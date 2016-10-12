@@ -20,7 +20,7 @@ namespace GitHubSearch.Specs
 
             A.CallTo(() => clientFactory.Create(accessToken)).Returns(gitHubClient);
 
-            var gitHubAdapter = new GitHubAdapter(clientFactory, configuration, fileCache);
+            var gitHubAdapter = new GitHubAdapter(clientFactory, configuration, fileCache, new Options());
 
             // Act
             bool result = gitHubAdapter.InitAccessToken(accessToken);
@@ -41,7 +41,7 @@ namespace GitHubSearch.Specs
 
             A.CallTo(() => clientFactory.Create(accessToken)).Returns(null);
 
-            var gitHubAdapter = new GitHubAdapter(clientFactory, configuration, fileCache);
+            var gitHubAdapter = new GitHubAdapter(clientFactory, configuration, fileCache, new Options());
 
             // Act
             bool result = gitHubAdapter.InitAccessToken(accessToken);

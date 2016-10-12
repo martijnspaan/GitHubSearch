@@ -8,18 +8,20 @@ namespace GitHubSearch.Specs
 {
     public class FileCacheSpecs
     {
+        private static readonly string LocalCacheFolder = $"{AppDomain.CurrentDomain.BaseDirectory}\\Cache";
+
         [Fact]
         public void When_instantiated_it_should_create_cache_folder()
         {
             // Arrange
             var fileSystem = A.Fake<IFileSystem>();
-            A.CallTo(() => fileSystem.DirectoryExists(".\\Cache")).Returns(false);
+            A.CallTo(() => fileSystem.DirectoryExists(LocalCacheFolder)).Returns(false);
 
             // Act
             var fileCache = new FileCache(fileSystem);
 
             // Assert
-            A.CallTo(() => fileSystem.EnsureDirectoryExists(".\\Cache")).MustHaveHappened();
+            A.CallTo(() => fileSystem.EnsureDirectoryExists(LocalCacheFolder)).MustHaveHappened();
         }
 
         [Fact]
@@ -39,7 +41,7 @@ namespace GitHubSearch.Specs
 
             var content = "SomeContent";
 
-            var expectedFilePath = $".\\Cache\\{repositoryName}\\{filePath}-{sha}.cache";
+            var expectedFilePath = $"{LocalCacheFolder}\\{repositoryName}\\{filePath}-{sha}.cache";
 
             var downloadContentFunc = A.Fake<Func<int, string, string>>();
             A.CallTo(() => downloadContentFunc.Invoke(A<int>._, A<string>._)).Returns(content);
@@ -66,7 +68,7 @@ namespace GitHubSearch.Specs
             var filePath = "SomeFile.txt";
             var sha = "8560328effd5fbee640e8aaef79b5ebc7ba1afe5";
 
-            var expectedFilePath = $".\\Cache\\{repositoryName}\\{filePath}-{sha}.cache";
+            var expectedFilePath = $"{LocalCacheFolder}\\{repositoryName}\\{filePath}-{sha}.cache";
 
             string content = "SomeContent";
             A.CallTo(() => fileSystem.ReadAllText(expectedFilePath)).Returns(content);
@@ -103,11 +105,11 @@ namespace GitHubSearch.Specs
             string oldContent = "SomeOldContent";
             string newContent = "SomeNewContent";
 
-            string oldCacheFile1 = $".\\Cache\\{repositoryName}\\{filePath}-{oldSha1}.cache";
-            string oldCacheFile2 = $".\\Cache\\{repositoryName}\\{filePath}-{oldSha2}.cache";
-            string newCacheFile = $".\\Cache\\{repositoryName}\\{filePath}-{newSha}.cache";
+            string oldCacheFile1 = $"{LocalCacheFolder}\\{repositoryName}\\{filePath}-{oldSha1}.cache";
+            string oldCacheFile2 = $"{LocalCacheFolder}\\{repositoryName}\\{filePath}-{oldSha2}.cache";
+            string newCacheFile = $"{LocalCacheFolder}\\{repositoryName}\\{filePath}-{newSha}.cache";
 
-            string repositoryCacheDirectory = $".\\Cache\\{repositoryName}";
+            string repositoryCacheDirectory = $"{LocalCacheFolder}\\{repositoryName}";
             A.CallTo(() => fileSystem.EnumerateFiles(repositoryCacheDirectory, A<string>._))
                 .Returns(new [] { oldCacheFile1, oldCacheFile2 });
             A.CallTo(() => fileSystem.ReadAllText(oldCacheFile1)).Returns(oldContent);
@@ -124,6 +126,22 @@ namespace GitHubSearch.Specs
             A.CallTo(() => fileSystem.DeleteFile(oldCacheFile1)).MustHaveHappened();
             A.CallTo(() => fileSystem.DeleteFile(oldCacheFile2)).MustHaveHappened();
             A.CallTo(() => fileSystem.WriteAllText(newCacheFile, newContent)).MustHaveHappened();
+        }
+
+        [Fact]
+        public void When_flushing_cache_it_should_clear_all_cache_files()
+        {
+            // Arrange
+            var fileSystem = A.Fake<IFileSystem>();
+            A.CallTo(() => fileSystem.FileExists(A<string>._)).Returns(false);
+
+            var fileCache = new FileCache(fileSystem);
+            
+            // Act
+            fileCache.Flush();
+
+            // Assert
+            A.CallTo(() => fileSystem.RemoveFolder(LocalCacheFolder)).MustHaveHappened();
         }
     }
 }

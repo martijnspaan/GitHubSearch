@@ -22,5 +22,7 @@ namespace GitHubSearch
         void DeleteDirectory(string path);
 
         IEnumerable<string> EnumerateFiles(string directoryPath, string filePattern);
+
+        void RemoveFolder(string cacheDirectory);
     }
 }

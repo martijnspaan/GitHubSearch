@@ -15,17 +15,20 @@ namespace GitHubSearch
         private readonly IGitHubClientFactory _clientFactory;
         private readonly IConfiguration _configuration;
         private readonly IFileCache _cache;
+        private readonly Options options;
 
         public int CurrentSearchItemsCount { get; private set; }
 
         private IGitHubClient _client;
 
 
-        public GitHubAdapter(IGitHubClientFactory clientFactory, IConfiguration configuration, IFileCache cache)
+        public GitHubAdapter(IGitHubClientFactory clientFactory, IConfiguration configuration, IFileCache cache, Options options)
         {
             _clientFactory = clientFactory;
             _configuration = configuration;
             _cache = cache;
+
+            this.options = options;
         }
 
         public bool InitAccessToken(string accessToken)
@@ -59,6 +62,11 @@ namespace GitHubSearch
 
         public IEnumerable<FileHit> DownloadMatchingFiles(string[] repos)
         {
+            if (options.FlushCache)
+            {
+                _cache.Flush();
+            }
+
             SearchCodeResult result = FindMatchingFiles(repos);
 
             // Because of yield, cannot return the total count

@@ -25,6 +25,9 @@ namespace GitHubSearch
         [Option('l', "lines", Required = false, DefaultValue = null, HelpText = "Specifies the amount of lines shown above and below the highlighted line. This will override the 'SurroundingLines' value in the configuration file.")]
         public int? SurroundingLines { get; set; }
 
+        [Option('c', "flushcache", Required = false, DefaultValue = false, HelpText = "Empties the cache folder, forcing downloads of online source.")]
+        public bool FlushCache { get; set; }
+
         [ValueOption(0)]
         public string SearchToken { get; set; }
 

@@ -17,9 +17,6 @@ namespace GitHubSearch
             fileSystem.EnsureDirectoryExists(LocalCacheFolder);
         }
 
-        /// <summary>
-        /// Loads the search hit from local cache folder when available. Reverts to supplied loadContent function when not found in cache.
-        /// </summary>
         public string GetCachedFileContent(int repositoryId, string repositoryName, string filePath, string sha, Func<int, string, string> loadContent)
         {
             string cacheKey = CreateCacheKey(filePath, sha);
@@ -61,10 +58,23 @@ namespace GitHubSearch
                 fileSystem.DeleteFile(path);
             }
         }
+
+        public void Flush()
+        {
+            fileSystem.RemoveFolder(LocalCacheFolder);
+        }
     }
 
     internal interface IFileCache
     {
+        /// <summary>
+        /// Removes all cached content from the cache folder.
+        /// </summary>
+        void Flush();
+        
+        /// <summary>
+        /// Loads the search hit from local cache folder when available. Reverts to supplied loadContent function when not found in cache.
+        /// </summary>
         string GetCachedFileContent(int repositoryId, string repositoryName, string filePath, string sha, Func<int, string, string> loadContent);
     }
 }

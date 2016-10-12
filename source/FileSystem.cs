@@ -61,5 +61,10 @@ namespace GitHubSearch
                 ? Directory.EnumerateFiles(directoryPath, filePattern)
                 : new string[0];
         }
+
+        public void RemoveFolder(string directoryPath)
+        {
+            Directory.Delete(directoryPath, true);
+        }
     }
 }
