@@ -44,6 +44,10 @@ namespace GitHubSearch
             Console.WriteLine();
             Console.WriteLine($" Downloading files matching '{_configuration.FilenameFilter}' from {repos.Length} GitHub repositories owned by {_configuration.GithubTargetName}");
 
+            if (repos.Length <= 0)
+            {
+                return Enumerable.Empty<FileHit>();
+            }
             return _gitHubAdapter.DownloadMatchingFiles(repos);
         }
 
