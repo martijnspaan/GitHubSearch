@@ -2,9 +2,14 @@
 
 Born from the limitation that the online [GitHub search](https://help.github.com/articles/searching-code/) has, where files larger than 384 KB are not indexed. This commandline search will download (and cache) the files before searching.
 
-## Downloads
+## How to install
+The easiest deployment mechanism is to install [Chocolatey](https://chocolatey.org/) and run the following command-line to install the [Chocolate package](https://chocolatey.org/packages/githubsearch):
 
-Last stable release: [GitHubSearch 1.2.0](https://github.com/martijnspaan/GitHubSearch/releases/download/1.2.0/GitHubSearch_1.2.0.zip)
+	choco install githubsearch
+
+Then run `GitHubSearch` or short `ghs` and observe the command-line arguments.
+
+Alternatively you can download the latest stable release: [GitHubSearch 1.2.0](https://github.com/martijnspaan/GitHubSearch/releases/download/1.2.0/GitHubSearch_1.2.0.zip)
 
 ## License 
 
