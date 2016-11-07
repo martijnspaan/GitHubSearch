@@ -8,7 +8,8 @@ namespace GitHubSearch
     internal class FileCache : IFileCache
     {
         private readonly IFileSystem fileSystem;
-        private static readonly string LocalCacheFolder = $"{AppDomain.CurrentDomain.BaseDirectory}\\Cache";
+        private static readonly string LocalCacheFolder =
+            $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\GitHubSearch\\Cache";
 
         public FileCache(IFileSystem fileSystem)
         {
