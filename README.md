@@ -22,3 +22,5 @@ Thanks to all the awesome libraries making this searcher possible:
 * [TinyIoC](https://github.com/grumpydev/TinyIoC)
 
 [![Build status](https://ci.appveyor.com/api/projects/status/psvicycmoj71go6n/branch/master?svg=true)](https://ci.appveyor.com/project/martijnspaan/githubsearch/branch/master)
+
+Test Changes
