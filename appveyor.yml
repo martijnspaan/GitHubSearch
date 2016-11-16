@@ -1,0 +1,15 @@
+version: '{build}'
+configuration: Release
+platform: Any CPU
+install:
+- cmd: choco install gitversion.portable -pre -y
+before_build:
+- ps: >-
+    nuget restore
+
+    gitversion /l console /output buildserver /updateAssemblyInfo
+
+
+    Update-AppveyorBuild -Version "$env:GitVersion_FullSemVer"
+build:
+  verbosity: minimal
