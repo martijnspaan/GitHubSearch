@@ -17,6 +17,8 @@ namespace GitHubSearch
         /// The repository name that contains the file.
         /// </summary>
         public string RepositoryName { get; set; }
+		
+		Compile Error
 
         /// <summary>
         /// The url to the file.
