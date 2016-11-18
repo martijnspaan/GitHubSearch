@@ -3,8 +3,8 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>githubsearch</id>
-    <version>1.2.0</version>
-    <packageSourceUrl>https://github.com/martijnspaan/GitHubSearch/releases/download/1.2.0/GitHubSearch_1.2.0.zip</packageSourceUrl>
+    <version>[[packageversion]]</version>
+    <packageSourceUrl>https://github.com/martijnspaan/GitHubSearch/releases/download/[[packageversion]]/GitHubSearch_[[packageversion]].zip</packageSourceUrl>
     <owners>Martijn Spaan</owners>
 
     <!-- == SOFTWARE SPECIFIC SECTION == -->
