@@ -2,10 +2,14 @@ version: '{build}'
 configuration: Release
 platform: Any CPU
 install:
-- cmd: choco install gitversion.portable -pre -y
+- cmd: >-
+    choco install gitversion.portable -pre -y
+
+    choco install checksum -y
 before_build:
 - ps: >-
     gitversion /l console /output buildserver /updateAssemblyInfo
+
 
     Update-AppveyorBuild -Version "$env:GitVersion_FullSemVer"
 
@@ -13,3 +17,29 @@ before_build:
     nuget restore
 build:
   verbosity: minimal
+after_test:
+- ps: >-
+    $zip_path = "$env:APPVEYOR_BUILD_FOLDER\artifacts\GitHubSearch_$env:GitVersion_FullSemVer.zip"
+
+
+    7z a $zip_path "$env:APPVEYOR_BUILD_FOLDER\artifacts\GitHubSearch.exe*" "$env:APPVEYOR_BUILD_FOLDER\artifacts\Colorful.Console.dll" "$env:APPVEYOR_BUILD_FOLDER\artifacts\CommandLine.dll" "$env:APPVEYOR_BUILD_FOLDER\artifacts\Newtonsoft.Json.dll" "$env:APPVEYOR_BUILD_FOLDER\artifacts\Octokit.dll" "$env:APPVEYOR_BUILD_FOLDER\source\ghs.cmd"
+
+
+    Push-AppveyorArtifact $zip_path
+
+
+    $checksum = checksum $zip_path
+
+
+    Copy-Item -Path "$env:APPVEYOR_BUILD_FOLDER\choco_template" -Destination "$env:chocolateyinstall\templates\GitHubSearch" -recurse -Force
+
+
+    choco new GitHubSearch -t GitHubSearch packageversion=$env:GitVersion_NuGetVersion checksum=$checksum
+
+
+    choco pack GitHubSearch\GitHubSearch.nuspec
+
+
+    Push-AppveyorArtifact "GitHubSearch.$env:GitVersion_NuGetVersion.nupkg"
+deploy_script:
+- ps: 
