@@ -25,7 +25,7 @@ after_test:
     7z a $zip_path "$env:APPVEYOR_BUILD_FOLDER\artifacts\GitHubSearch.exe*" "$env:APPVEYOR_BUILD_FOLDER\artifacts\Colorful.Console.dll" "$env:APPVEYOR_BUILD_FOLDER\artifacts\CommandLine.dll" "$env:APPVEYOR_BUILD_FOLDER\artifacts\Newtonsoft.Json.dll" "$env:APPVEYOR_BUILD_FOLDER\artifacts\Octokit.dll" "$env:APPVEYOR_BUILD_FOLDER\source\ghs.cmd"
 
 
-    Push-AppveyorArtifact $zip_path
+    Push-AppveyorArtifact $zip_path -DeploymentName ReleasePackage
 
 
     $checksum = checksum $zip_path
@@ -40,6 +40,4 @@ after_test:
     choco pack GitHubSearch\GitHubSearch.nuspec
 
 
-    Push-AppveyorArtifact "GitHubSearch.$env:GitVersion_NuGetVersion.nupkg"
-deploy_script:
-- ps: 
+    Push-AppveyorArtifact "GitHubSearch.$env:GitVersion_NuGetVersion.nupkg" -DeploymentName ChocoPackage
