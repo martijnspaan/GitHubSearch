@@ -1,4 +1,6 @@
-﻿using Octokit;
+﻿using System;
+
+using Octokit;
 using Octokit.Internal;
 
 namespace GitHubSearch
@@ -29,7 +31,12 @@ namespace GitHubSearch
             {
                 gitHubClient.Repository.Get("martijnspaan", "GitHubSearch").Wait();
             }
-            catch
+            catch (ForbiddenException fex)
+            {
+                // Forbidden when exceeded login attempts or rate limit, which could go wrong on build agent
+                return gitHubClient;
+            }
+            catch (Exception ex)
             {
                 return null;
             }
