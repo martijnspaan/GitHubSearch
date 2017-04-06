@@ -2,7 +2,7 @@
 
 Born from the limitation that the online [GitHub search](https://help.github.com/articles/searching-code/) has, where files larger than 384 KB are not indexed. This commandline search will download (and cache) the files before searching.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/g9lj2yk6efj5fibe?svg=true)](https://ci.appveyor.com/project/martijnspaan/githubsearch)
+[![Build status](https://ci.appveyor.com/api/projects/status/v4fw8ahradj9baoh?svg=true)](https://ci.appveyor.com/project/martijnspaan/githubsearch)
 
 ## How to install
 The easiest deployment mechanism is to install [Chocolatey](https://chocolatey.org/) and run the following command-line to install the [Chocolate package](https://chocolatey.org/packages/githubsearch):
