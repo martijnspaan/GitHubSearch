@@ -105,7 +105,7 @@ namespace GitHubSearch
 
         }
 
-        private string DownloadFileContent(int repositoryId, string filePath)
+        private string DownloadFileContent(long repositoryId, string filePath)
         {
             return _client.Repository.Content.GetAllContents(repositoryId, filePath).Result.First().Content;
         }

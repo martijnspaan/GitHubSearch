@@ -120,10 +120,10 @@ namespace GitHubSearch
             switch (_configuration.OutputMode)
             {
                 case "HtmlUrl":
-                    Console.WriteLine($" {hit.FoundLineNumbers.Count()} hits in {hit.HtmlUrl}");
+                    Console.WriteLine($" {hit.FoundLineNumbers.Count} hits in {hit.HtmlUrl}");
                     break;
                 default:
-                    Console.WriteLine($" {hit.FoundLineNumbers.Count()} hits in {hit.Path}");
+                    Console.WriteLine($" {hit.FoundLineNumbers.Count} hits in {hit.Path}");
                     break;
             }
         }

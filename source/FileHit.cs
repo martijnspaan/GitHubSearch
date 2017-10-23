@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace GitHubSearch
 {
@@ -21,7 +20,7 @@ namespace GitHubSearch
         /// <summary>
         /// The url to the file.
         /// </summary>
-        public Uri HtmlUrl { get; set; }
+        public string HtmlUrl { get; set; }
 
         /// <summary>
         /// The relative path to the file within the repository.
