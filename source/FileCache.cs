@@ -18,7 +18,7 @@ namespace GitHubSearch
             fileSystem.EnsureDirectoryExists(LocalCacheFolder);
         }
 
-        public string GetCachedFileContent(int repositoryId, string repositoryName, string filePath, string sha, Func<int, string, string> loadContent)
+        public string GetCachedFileContent(long repositoryId, string repositoryName, string filePath, string sha, Func<long, string, string> loadContent)
         {
             string cacheKey = CreateCacheKey(filePath, sha);
 
@@ -76,6 +76,6 @@ namespace GitHubSearch
         /// <summary>
         /// Loads the search hit from local cache folder when available. Reverts to supplied loadContent function when not found in cache.
         /// </summary>
-        string GetCachedFileContent(int repositoryId, string repositoryName, string filePath, string sha, Func<int, string, string> loadContent);
+        string GetCachedFileContent(long repositoryId, string repositoryName, string filePath, string sha, Func<long, string, string> loadContent);
     }
 }
